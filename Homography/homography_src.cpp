@@ -74,7 +74,7 @@ cv::Mat do_transform(cv::Mat src, cv::Mat H) {
 
 int main(int argc, char *argv[]) {
 
-	cv::Mat img_ori = cv::imread("origin_pic.jpg");
+	cv::Mat img_ori = cv::imread("src_img.jpg");
 	cv::Mat img_homo(img_ori.rows, img_ori.cols, CV_8UC3, cv::Scalar(0, 0, 0));
 
 	/* Correspondence Points */
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 
 	cv::namedWindow("After transform", cv::WINDOW_NORMAL);
 	cv::resizeWindow("After transform", 640, 480);
-	imwrite("Homography.jpg", img_homo);
+	imwrite("Transformed_img.jpg", img_homo);
 	imshow("After transform", img_homo);
 
 	char key = (char)cv::waitKey(0);
