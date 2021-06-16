@@ -43,6 +43,33 @@ cv::Mat find_H_matrix(std::vector<cv::Point2f> src, std::vector<cv::Point2f> tgt
 	return H.clone();
 }
 
+cv::Mat find_H_SVD(std::vector<cv::Point2f> src, std::vector<cv::Point2f> tgt) {
+
+	double Point_matrix[8][9];
+	for (int i = 0; i < 4; i++) {
+		double row1[9] = { src[i].x, src[i].y, 1,        0,        0, 0, -tgt[i].x * src[i].x, -tgt[i].x * src[i].y, -tgt[i].x };
+		double row2[9] = { 0       ,        0, 0, src[i].x, src[i].y, 1, -tgt[i].y * src[i].x, -tgt[i].y * src[i].y, -tgt[i].y };
+
+		/* save 4 point data to 8*8 Matrix */
+		memcpy(Point_matrix[2 * i], row1, sizeof(row1));
+		memcpy(Point_matrix[2 * i + 1], row2, sizeof(row2));
+	}
+
+	cv::Mat Point_data(8, 9, CV_64FC1, Point_matrix);
+	cv::SVD svd(Point_data, cv::SVD::FULL_UV);
+	cv::Mat V = svd.vt.t();
+	
+	double h[9] = { 0 };
+	for (int i = 0; i < V.rows; i++) {
+		h[i] = V.at<double>(i, V.cols - 1);
+		h[i] = h[i]/ V.at<double>(V.rows - 1, V.cols - 1);    /* Normalized */
+	}
+
+	cv::Mat H(3, 3, CV_64FC1, h);
+
+	return H.clone();
+}
+
 cv::Mat do_transform(cv::Mat src, cv::Mat H) {
 
 	std::cout << "doing transform..." << std::endl;
@@ -92,6 +119,9 @@ int main(int argc, char *argv[]) {
 	/* OpenCV's API, for comparison use */
 	cv::Mat H_opencv = findHomography(img_ori_points, img_homo_points);
 
+	/* SVD compute H, for comparison use */
+	cv::Mat H_SVD = find_H_SVD(img_ori_points, img_homo_points);
+
 	double t = (double)cv::getTickCount();
 
 	/* my self-implemented function for finding H */
@@ -105,6 +135,8 @@ int main(int argc, char *argv[]) {
 	std::cout << H << std::endl;
 	std::cout << "OpenCV's API H matrix:" << std::endl;
 	std::cout << H_opencv << std::endl;
+	std::cout << "SVD H matrix:" << std::endl;
+	std::cout << H_SVD << std::endl;
 
 	cv::namedWindow("Source image", cv::WINDOW_NORMAL);
 	cv::resizeWindow("Source image", 640, 480);
