@@ -1,7 +1,7 @@
 # Homography
 ## Introduction
 * Homography transformation
-* Support non-homo solution and SVD solution
+* Support Direct Linear Transformation(SVD) and inhomogeneous solution(linear least-squares) 
 * Result  
 Source image
 ![image](https://github.com/shibarain666/Homography/blob/main/sample_imgs/src_img.jpg)
